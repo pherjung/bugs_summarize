@@ -46,6 +46,19 @@ def return_attributes(ticket):
     return f"[{bug_id}]({url})"
 
 
+def return_comment(ticket):
+    """
+    Return comment from the ticket
+    :option ticket: dict
+    """
+    data = requests.get(f"{BASE_URL}/history/userstory/{ticket['id']}",
+                        headers=HEADERS)
+    data = data.json()
+    for comment in data:
+        if comment['comment']:
+            return comment['comment']
+
+
 with open('bugs.md', 'w', encoding='utf-8') as f:
     f.write('# Untracked bug reports\n')
     f.write('| ID | Comments | Additional Information |\n')
@@ -53,7 +66,8 @@ with open('bugs.md', 'w', encoding='utf-8') as f:
     # Keep only 10 bugs from the column Good for meeting
     for bug in good_meeting[:10]:
         site = return_attributes(bug)
-        f.write(f"| {site} | |\n")
+        blabla = return_comment(bug)
+        f.write(f"| {site} | {blabla} |\n")
 
     if bugs_close:
         f.write('\n')
@@ -62,7 +76,8 @@ with open('bugs.md', 'w', encoding='utf-8') as f:
         f.write('| -- | --\n')
         for bug in bugs_close:
             site = return_attributes(bug)
-            f.write(f"| {site} | \n")
+            blabla = return_comment(bug)
+            f.write(f"| {site} | {blabla}\n")
 
     if bugs_duplicate:
         f.write('\n')
@@ -71,4 +86,5 @@ with open('bugs.md', 'w', encoding='utf-8') as f:
         f.write('| -- | --\n')
         for bug in bugs_duplicate:
             site = return_attributes(bug)
-            f.write(f"| {site} | \n")
+            blabla = return_comment(bug)
+            f.write(f"| {site} | {blabla}\n")
