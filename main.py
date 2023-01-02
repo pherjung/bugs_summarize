@@ -28,7 +28,7 @@ def write_bug(file, ticket):
 
 
 with open('bugs.md', 'w', encoding='utf-8') as f:
-    f.write('#Untracked bug reports\n')
+    f.write('# Untracked bug reports\n')
     f.write('| ID | Comments | Additional Information |\n')
     f.write('| -- | -- | --\n')
     # Keep only 10 bugs from the column Good for meeting
@@ -37,7 +37,7 @@ with open('bugs.md', 'w', encoding='utf-8') as f:
 
     if bugs_close:
         f.write('\n')
-        f.write('#To be closed\n')
+        f.write('# To be closed\n')
         f.write('| ID | Reason\n')
         f.write('| -- | --\n')
         for bug in bugs_close:
@@ -45,7 +45,7 @@ with open('bugs.md', 'w', encoding='utf-8') as f:
 
     if bugs_duplicate:
         f.write('\n')
-        f.write('#Duplicate\n')
+        f.write('# Duplicate\n')
         f.write('| ID | Duplicate with\n')
         f.write('| -- | --\n')
         for bug in bugs_duplicate:
