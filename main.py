@@ -42,7 +42,8 @@ def return_attributes(ticket):
     )
     attributes = attributes.json()
     bug_id = attributes['attributes_values']['32818']
-    url = attributes['attributes_values']['32819']
+    bug_link = attributes['attributes_values']['32819']
+    url = requests.get(bug_link).url
     return f"[{bug_id}]({url})"
 
 
