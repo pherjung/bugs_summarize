@@ -1,30 +1,49 @@
-from taiga import TaigaAPI
 import os
 import requests
 
 
-api = TaigaAPI()
-api.auth(
-    username=os.getenv('USERNAME'),
-    password=os.getenv('PASSWORD')
-)
-kanban = api.projects.get_by_slug('thigg-sfos-bug-mod')
-bugs_good_meeting = api.user_stories.list(project=kanban.id, status=3020511)
-bugs_close = api.user_stories.list(project=kanban.id, status=3023266)
-bugs_duplicate = api.user_stories.list(project=kanban.id, status=3235139)
+BASE_URL = 'https://api.taiga.io/api/v1'
+SFOS = 'https://forum.sailfishos.org/t/'
+PROJECT = 'thigg-sfos-bug-mod'
+json_data = {
+    'username': os.getenv('USERNAME'),
+    'password': os.getenv('PASSWORD'),
+    'type': 'normal'
+}
+response = requests.post(f'{BASE_URL}/auth', json=json_data)
+token = response.json()['auth_token']
+HEADERS = {'Authorization': f'Bearer {token}'}
+kanban = requests.get(f'{BASE_URL}/projects/by_slug?slug={PROJECT}',
+                      headers=HEADERS)
+kanban_id = kanban.json()['id']
+
+good_meeting = requests.get(
+    f'{BASE_URL}/userstories?project={kanban_id}&status=3020511',
+    headers=HEADERS
+).json()
+bugs_close = requests.get(
+    f'{BASE_URL}/userstories?project={kanban_id}&status=3023266',
+    headers=HEADERS
+).json()
+bugs_duplicate = requests.get(
+    f'{BASE_URL}/userstories?project={kanban_id}&status=3235139',
+    headers=HEADERS
+).json()
 
 
-def write_bug(file, ticket):
+def return_attributes(ticket):
     """
-    Write all datas from a ticket
-    :option file: File
-    :option ticket: UserStory
+    Return custom attributes from the ticket
+    :option ticket: dict
     """
-    attributes = ticket.get_attributes()
+    attributes = requests.get(
+        f"{BASE_URL}/userstories/custom-attributes-values/{ticket['id']}",
+        headers=HEADERS
+    )
+    attributes = attributes.json()
     bug_id = attributes['attributes_values']['32818']
-    bug_link = attributes['attributes_values']['32819']
-    url = requests.get(bug_link).url
-    file.write(f"| [{bug_id}]({url}) | |\n")
+    url = attributes['attributes_values']['32819']
+    return f"[{bug_id}]({url})"
 
 
 with open('bugs.md', 'w', encoding='utf-8') as f:
@@ -32,8 +51,9 @@ with open('bugs.md', 'w', encoding='utf-8') as f:
     f.write('| ID | Comments | Additional Information |\n')
     f.write('| -- | -- | --\n')
     # Keep only 10 bugs from the column Good for meeting
-    for bug in bugs_good_meeting[:10]:
-        write_bug(f, bug)
+    for bug in good_meeting[:10]:
+        site = return_attributes(bug)
+        f.write(f"| {site} | |\n")
 
     if bugs_close:
         f.write('\n')
@@ -41,7 +61,8 @@ with open('bugs.md', 'w', encoding='utf-8') as f:
         f.write('| ID | Reason\n')
         f.write('| -- | --\n')
         for bug in bugs_close:
-            write_bug(f, bug)
+            site = return_attributes(bug)
+            f.write(f"| {site} | \n")
 
     if bugs_duplicate:
         f.write('\n')
@@ -49,4 +70,5 @@ with open('bugs.md', 'w', encoding='utf-8') as f:
         f.write('| ID | Duplicate with\n')
         f.write('| -- | --\n')
         for bug in bugs_duplicate:
-            write_bug(f, bug)
+            site = return_attributes(bug)
+            f.write(f"| {site} | \n")
