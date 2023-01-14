@@ -70,7 +70,7 @@ with open('bugs.md', 'w', encoding='utf-8') as f:
         blabla = return_comment(bug)
         f.write(f"| {site} | {blabla} |\n")
 
-    if bugs_close:
+    if bugs_close[:10]:
         f.write('\n')
         f.write('# To be closed\n')
         f.write('| ID | Reason\n')
@@ -80,7 +80,7 @@ with open('bugs.md', 'w', encoding='utf-8') as f:
             blabla = return_comment(bug)
             f.write(f"| {site} | {blabla}\n")
 
-    if bugs_duplicate:
+    if bugs_duplicate[:10]:
         f.write('\n')
         f.write('# Duplicate\n')
         f.write('| ID | Duplicate with\n')
