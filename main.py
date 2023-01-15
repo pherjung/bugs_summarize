@@ -57,7 +57,9 @@ def return_comment(ticket):
     data = data.json()
     for comment in data:
         if comment['comment']:
-            return comment['comment']
+            comment = comment['comment'].replace('\\[', '[')
+            comment = comment.replace('\\]', ']')
+            return comment
 
 
 with open('bugs.md', 'w', encoding='utf-8') as f:
